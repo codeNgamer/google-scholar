@@ -12,9 +12,21 @@ nodejs module for searching google scholar
 ```
 'use strict'
 
-let scholar = require('google-scholar')
+const scholar = require('google-scholar')
 
-scholar.search('chairmouse')
+let query1 = 'chairmouse';
+let query2 = {
+  site: '',
+  query: 'chairmouse',
+  minYear: 2015,
+  maxYear: 2017,
+};
+
+scholar.search(query1)
+  .then(resultsObj => {
+    console.log(resultsObj)
+  })
+scholar.search(query2)
   .then(resultsObj => {
     console.log(resultsObj)
   })
