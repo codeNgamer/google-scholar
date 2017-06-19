@@ -12,7 +12,7 @@ nodejs module for searching google scholar
 ```
 'use strict'
 
-const scholar = require('google-scholar')
+const scholar = require('google-scholar-plus')
 
 let query1 = 'chairmouse';
 let query2 = {
