@@ -164,10 +164,15 @@ const scholar = (function () {
 
   function formatQuery(userQuery) {
     const site = userQuery.site ? `site:${userQuery.site}` : '';
+    const exact = userQuery.exact ? `&as_epq=${userQuery.exact}` : '';
+    const contains = userQuery.contains ? `&as_oq=${userQuery.contains}` : '';
+    const without = userQuery.without ? `&as_eq=${userQuery.without}` : '';
+    const authors = userQuery.authors ? `&as_sauthors=${userQuery.author}` : '';
+    const published = userQuery.published ? `&as_publication=${userQuery.published}` : '';
     const minYear = userQuery.minYear ? `&as_ylo=${userQuery.minYear}` : '';
     const maxYear = (userQuery.minYear && userQuery.maxYear) ? `&as_yhi=${userQuery.maxYear}` : '';
 
-    return `${userQuery.query} ${site}${minYear}${maxYear}` ;
+    return `${userQuery.query} ${site}${exact}${contains}${without}${authors}${minYear}${maxYear}` ;
   }
 
   function search (query) {

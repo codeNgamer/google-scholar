@@ -16,10 +16,15 @@ const scholar = require('google-scholar')
 
 let query1 = 'chairmouse';
 let query2 = {
-  site: '',
+  site: 'example.com',
   query: 'chairmouse',
   minYear: 2015,
   maxYear: 2017,
+  authors: 'author1,author2',
+  exact: 'article has this exact phrase',
+  contains: 'article contains at least one of these words',
+  without: 'article must not contain any of these words',
+  published: 'published in this journal etc'
 };
 
 scholar.search(query1)
