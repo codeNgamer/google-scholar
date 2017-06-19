@@ -5,8 +5,8 @@ nodejs module for searching google scholar
 
 ## getting started ##
 
-1. `npm install google-scholar --save`
-1. require the module `let scholar = require('google-scholar')`
+1. `npm install google-scholar-plus --save`
+1. require the module `let scholar = require('google-scholar-plus')`
 1. get searching!
 
 ```
