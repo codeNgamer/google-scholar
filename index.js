@@ -1,24 +1,23 @@
-'use strict'
+const scholar = (function () {
+  const request = require('request');
+  const cheerio = require('cheerio');
+  const striptags = require('striptags');
+  const _ = require('lodash');
 
-let scholar = (function () {
-  let request = require('request')
-  let cheerio = require('cheerio')
-  let striptags = require('striptags')
+  const GOOGLE_SCHOLAR_URL = 'https://scholar.google.com/scholar?hl=en&q=';
+  const GOOGLE_SCHOLAR_URL_PREFIX = 'https://scholar.google.com';
 
-  const GOOGLE_SCHOLAR_URL = 'https://scholar.google.com/scholar?hl=en&q='
-  const GOOGLE_SCHOLAR_URL_PREFIX = 'https://scholar.google.com'
+  const ELLIPSIS_HTML_ENTITY = '&#x2026;';
+  const ET_AL_NAME = 'et al.';
+  const CITATION_COUNT_PREFIX = 'Cited by ';
+  const RELATED_ARTICLES_PREFIX = 'Related articles';
 
-  const ELLIPSIS_HTML_ENTITY = '&#x2026;'
-  const ET_AL_NAME = 'et al.'
-  const CITATION_COUNT_PREFIX = 'Cited by '
-  const RELATED_ARTICLES_PREFIX = 'Related articles'
-
-  const STATUS_CODE_FOR_RATE_LIMIT = 503
-  const STATUS_MESSAGE_FOR_RATE_LIMIT = 'Service Unavailable'
-  const STATUS_MESSAGE_BODY = 'This page appears when Google automatically detects requests coming from your computer network which appear to be in violation of the <a href="//www.google.com/policies/terms/">Terms of Service</a>. The block will expire shortly after those requests stop.'
+  const STATUS_CODE_FOR_RATE_LIMIT = 503;
+  const STATUS_MESSAGE_FOR_RATE_LIMIT = 'Service Unavailable';
+  const STATUS_MESSAGE_BODY = 'This page appears when Google automatically detects requests coming from your computer network which appear to be in violation of the <a href="//www.google.com/policies/terms/">Terms of Service</a>. The block will expire shortly after those requests stop.';
 
   // regex with thanks to http://stackoverflow.com/a/5917250/1449799
-  const RESULT_COUNT_RE = /\W*((\d+|\d{1,3}(,\d{3})*)(\.\d+)?) results/
+  const RESULT_COUNT_RE = /\W*((\d+|\d{1,3}(,\d{3})*)(\.\d+)?) results/;
 
   function scholarResultsCallback (resolve, reject) {
     return function (error, response, html) {
@@ -163,9 +162,19 @@ let scholar = (function () {
     }
   }
 
+  function formatQuery(userQuery) {
+    const site = userQuery.site ? `site:${userQuery.site}` : '';
+    const minYear = userQuery.minYear ? `&as_ylo=${userQuery.minYear}` : '';
+    const maxYear = (userQuery.minYear && userQuery.maxYear) ? `&as_yhi=${userQuery.maxYear}` : '';
+
+    return `${userQuery.query} ${site}${minYear}${maxYear}` ;
+  }
+
   function search (query) {
-    let p = new Promise(function (resolve, reject) {
-      request(encodeURI(GOOGLE_SCHOLAR_URL + query), scholarResultsCallback(resolve, reject))
+    const p = new Promise(function (resolve, reject) {
+      const formattedQuery = _.isString(query) ? query : formatQuery(query);
+
+      request(encodeURI(GOOGLE_SCHOLAR_URL + formattedQuery), scholarResultsCallback(resolve, reject))
     })
     return p
   }

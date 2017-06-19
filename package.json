@@ -11,15 +11,17 @@
     "url": "https://github.com/VT-CHCI/google-scholar.git"
   },
   "author": {
-    "name": "Michael Stewart",
-    "email": "tgm@vt.edu",
-    "url": "http://hcientist.com/"
+    "name": "codengamer",
+    "email": "ekeneoduah@live.com",
+    "url": "http://acirfa.org/"
   },
   "license": "ISC",
   "dependencies": {
     "cheerio": "^0.20.0",
-    "request": "^2.73.0",
-    "striptags": "^2.1.1"
+    "lodash": "^4.17.4",
+    "query-string": "^4.3.4",
+    "request": "^2.81.0",
+    "striptags": "^2.2.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",
