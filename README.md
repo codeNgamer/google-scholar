@@ -14,8 +14,8 @@ nodejs module for searching google scholar
 
 const scholar = require('google-scholar-plus')
 
-let query1 = 'chairmouse';
-let query2 = {
+const query1 = 'chairmouse';
+const query2 = {
   site: 'example.com',
   query: 'chairmouse',
   minYear: 2015,
