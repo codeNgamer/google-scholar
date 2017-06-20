@@ -4,6 +4,8 @@ const scholar = (function () {
   const striptags = require('striptags');
   const _ = require('lodash');
 
+  const extractors = require('./extractors');
+
   const GOOGLE_SCHOLAR_URL = 'https://scholar.google.com/scholar?hl=en&q=';
   const GOOGLE_SCHOLAR_URL_PREFIX = 'https://scholar.google.com';
 
@@ -185,7 +187,8 @@ const scholar = (function () {
   }
 
   return {
-    search: search
+    search,
+    extractors,
   }
 })()
 

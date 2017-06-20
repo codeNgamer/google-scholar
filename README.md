@@ -1,9 +1,9 @@
-# google-scholar #
+# google-scholar-plus #
 
 nodejs module for searching google scholar
 
 
-## getting started ##
+## Getting started ##
 
 1. `npm install google-scholar-plus --save`
 1. require the module `let scholar = require('google-scholar-plus')`
@@ -35,6 +35,25 @@ scholar.search(query2)
   .then(resultsObj => {
     console.log(resultsObj)
   })
+```
+
+## Extractors ##
+
+google-scholar-plus comes with some pre-defined extractor in order to grab additonal information from
+retrieved articles. All extractors return a promise and live in the "extractors" property of google-scholar-plus
+
+Current available extractors:
+1. ascoExtractor (ascopubs articles) 
+
+```
+scholar.search(query2)
+  .then(resultsObj => Promise.all(resultsObj.results.map(scholar.extractors.ascoExtractor)))
+  .then(extractedRes => {
+    // extracted articles here
+    console.log(extractedRes[0]);
+    console.log(extractedRes[1]);
+})
+
 ```
 
 ## resultsObj ##
