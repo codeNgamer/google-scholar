@@ -2,13 +2,12 @@ const request = require('request-promise').defaults({ jar: true });
 const $ = require('cheerio');
 const striptags = require('striptags');
 const _ = require('lodash');
+const fs = require('fs');
 
-const context = '.wrapped';
-const abstractContainerClass = '.abstractSection.abstractInFull';
-const abstractSectionClass = '.NLM_sec.NLM_sec_level_1';
 
 
 function extractInfoFromSections (abstractContainer, abstract) {
+  const abstractSectionClass = '.NLM_sec.NLM_sec_level_1';
   const sectionHeadingSelector = '.sectionHeading';
   const sectionContentSelector = 'p';
   let sectionHtml = null;
@@ -44,12 +43,23 @@ function extractInfoFromAbstractText (abstractContainer, abstract) {
 
 }
 
+function saveAbstractText(abstractContainer, abstract) {
+  const abstractTextSelector = 'p';
+
+  const abstractText = $(abstractTextSelector, abstractContainer).text();
+
+  abstract.background = abstractText;
+}
+
 const ascopubsExtractor = function (googleScholarEntry) {
   return request(googleScholarEntry.url)
     .then(html => {
+      const abstractContext = '.wrapped';
+      const abstractTitleClass = '.chaptertitle';
+      const abstractContainerClass = '.abstractSection.abstractInFull';
       const abstract = {};
 
-      const abstractHtmlContainer = $(abstractContainerClass, context, html).html();
+      const abstractHtmlContainer = $(abstractContainerClass, abstractContext, html).html();
 
       // extracts information from sections if available and stores in abstract object
       extractInfoFromSections(abstractHtmlContainer, abstract);
@@ -58,6 +68,19 @@ const ascopubsExtractor = function (googleScholarEntry) {
       // so it must be in the abstract text. let's use the alternate extractor
       if (_.isEmpty(abstract)) extractInfoFromAbstractText(abstractHtmlContainer, abstract);
 
+      // if abstract is still empty at this point, we'll save the whole text blob as
+      // the abstract background
+      if(_.isEmpty(abstract)) saveAbstractText(abstractHtmlContainer, abstract);
+
+      abstract.title = $('meta[name="dc.Title" i]','head', html).prop('content');
+      abstract.sourceId = $('meta[scheme="doi" i]','head', html).prop('content');
+      abstract.publisherId = $('meta[scheme="publisher-id" i]','head', html).prop('content');
+      abstract.publisher = $('meta[name="dc.Publisher" i]','head', html).prop('content').trim();
+      abstract.sourceDate = $('meta[name="dc.Date" i]','head', html).prop('content');
+      abstract.authors = googleScholarEntry.authors;
+      abstract.citedCount = googleScholarEntry.citedCount;
+      abstract.citedUrl = googleScholarEntry.citedUrl;
+      abstract.link = googleScholarEntry.url;
       return abstract;
     })
 }
