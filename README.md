@@ -16,8 +16,20 @@ const scholar = require('google-scholar-plus')
 
 const query1 = 'chairmouse';
 const query2 = {
-  site: 'example.com',
+  site: 'example.com', //string or array of multiple sites
   query: 'chairmouse',
+  minYear: 2015,
+  maxYear: 2017,
+  authors: 'author1,author2',
+  exact: 'article has this exact phrase',
+  contains: 'article contains at least one of these words',
+  without: 'article must not contain any of these words',
+  published: 'published in this journal etc'
+};
+
+const query3 = {
+  site: ['site1.com', 'site2.com'], //string or array of multiple sites
+  query: 'example query',
   minYear: 2015,
   maxYear: 2017,
   authors: 'author1,author2',
@@ -30,7 +42,8 @@ const query2 = {
 scholar.search(query1)
   .then(resultsObj => {
     console.log(resultsObj)
-  })
+  });
+
 scholar.search(query2)
   .then(resultsObj => {
     console.log(resultsObj)
@@ -44,6 +57,13 @@ retrieved articles. All extractors return a promise and live in the "extractors"
 
 Current available extractors:
 1. ascoExtractor (ascopubs articles) 
+2. aacrExtractor (aacr articles) 
+3. pubmedExtractor (pubmed articles) 
+
+
+use the convience method `searchAndExtract`, to automatically extract articles from google-scholar results
+
+searchAndExtract uses the available extractors to parse all google-scholar results
 
 ```
 scholar.search(query2)
@@ -53,6 +73,14 @@ scholar.search(query2)
     console.log(extractedRes[0]);
     console.log(extractedRes[1]);
 })
+
+
+scholar.searchAndExtract(query3)
+  .then(extractedRes => {
+    console.log(extractedRes.splice(0,10));
+  })
+.catch(console.log)
+
 
 ```
 

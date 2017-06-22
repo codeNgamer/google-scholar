@@ -1,4 +1,5 @@
 const request = require('request-promise').defaults({ jar: true });
+const Extractor = require('../extractor');
 const $ = require('cheerio');
 const _ = require('lodash');
 
@@ -40,5 +41,8 @@ const aacrExtractor = function (googleScholarEntry, o, p, c) {
     })
 }
 
+const acceptedUrls = [
+'aacrjournals.org'
+];
 
-module.exports = aacrExtractor;
+module.exports = new Extractor(aacrExtractor, { acceptedUrls });

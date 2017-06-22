@@ -1,9 +1,13 @@
 const request = require('request-promise').defaults({ jar: true });
-const parser = require('xml2json');
+const Extractor = require('../extractor');
+const libxmljs = require("libxmljs");
 const $ = require('cheerio');
 const _ = require('lodash');
+const moment = require("moment");
+
 const pubmedEfetch = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed';
 const returnMode = '&retmode=xml';
+const abstractSource = 'PUBMED';
 
 const pubmedExtractor = function (googleScholarEntry) {
   const uriOptions = {
@@ -21,32 +25,59 @@ const pubmedExtractor = function (googleScholarEntry) {
     })
   // get article from efetch
     .then(pmid => request(`${pubmedEfetch}&id=${pmid}${returnMode}`))
-  // convert abstract xml to json
-    .then(abstractXml => parser.toJson(abstractXml, { object: true }))
-    .then(abstractObject => {
-      const {
-        MedlineCitation: medlineCitation,
-        PubmedData: pubmedData,
-      } = abstractObject.PubmedArticleSet.PubmedArticle;
-
-      console.log('---------');
-      console.log(abstractObject);
-      console.log('----End-----');
-
+  // parse abstract xml to json
+    .then(abstractXml => libxmljs.parseXml(abstractXml,{ noblanks: true }))
+    .then(abstractXmlDoc => {
       const abstract = { };
+      const abstractTitleTag = '//ArticleTitle';
+      const abstractTextTag = '//AbstractText';
+      const abstractPubDateTag = '//PubDate';
+
+
       let abstractCategory = '';
-      abstract.title = medlineCitation.Article.ArticleTitle;
+      abstract.title = abstractXmlDoc.get(abstractTitleTag).text();
 
-      // grab all the categories from the abstract i.e sections like methods, conclusion etc
-      _.each(medlineCitation.Article.Abstract.AbstractText, entry => {
-        abstractCategory = _.lowerCase(entry.NlmCategory);
-        abstract[abstractCategory] = entry['$t'];
-      });
+      const abstractTextSections = abstractXmlDoc.find(abstractTextTag);
+      const abstractHasOneElement = (abstractTextSections.length === 1);
+      const abstractHasNoCategory = !(abstractTextSections[0].attr('NlmCategory'));
 
+      if (abstractHasOneElement && abstractHasNoCategory) {
+        // if abstractText has one child and node and that node does
+        // not have a category, then that node must have the abstract text
+        // and abstract is not divided into sections. so we save that text as background
+        abstract.background = abstractTextSections[0].text();
+      } else {
+        let sectionTitle = '';
+        _.each(abstractTextSections, section => {
+          sectionTitle = _.lowerCase(section.attr('NlmCategory').value());
+          abstract[sectionTitle] = section.text();
+        });
+      }
+
+      const pubDateElement = abstractXmlDoc.get(abstractPubDateTag);
+      const pubYear = pubDateElement.get('Year').text();
+
+      try {
+        const pubMonth = pubDateElement.get('Month').text();
+        // save date as iso string courtesy of moment
+        abstract.publishDate = moment(`${pubMonth}/1/${pubYear}`, "MMM-DD-YYYY").toISOString();
+      } catch(err) {
+        // we most likely dont have a month so default to the jan 1st of the year
+        abstract.publishDate = moment(`1/1/${pubYear}`, "MMM-DD-YYYY").toISOString();
+      }
+
+
+      abstract.authors = googleScholarEntry.authors;
+      abstract.citedCount = googleScholarEntry.citedCount;
+      abstract.citedUrl = googleScholarEntry.citedUrl;
+      abstract.link = googleScholarEntry.url;
+      abstract.source = abstractSource;
 
       return abstract;
     })
 }
+const acceptedUrls = [
+'ncbi.nlm.nih.gov'
+];
 
-
-module.exports = pubmedExtractor;
+module.exports = new Extractor(pubmedExtractor, { acceptedUrls });

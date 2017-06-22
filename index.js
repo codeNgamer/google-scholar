@@ -5,6 +5,7 @@ const scholar = (function () {
   const _ = require('lodash');
 
   const extractors = require('./extractors');
+  const { findExtractor } = require('./helpers');
 
   const GOOGLE_SCHOLAR_URL = 'https://scholar.google.com/scholar?hl=en&q=';
   const GOOGLE_SCHOLAR_URL_PREFIX = 'https://scholar.google.com';
@@ -165,7 +166,18 @@ const scholar = (function () {
   }
 
   function formatQuery(userQuery) {
-    const site = userQuery.site ? `site:${userQuery.site}` : '';
+    let site = '';
+
+    if (_.isArray(userQuery.site)) {
+      site = _.reduce(userQuery.site, function(siteString, site, index) {
+        siteString = `${siteString} site:${site}`;
+        if (userQuery.site[index + 1]) return `${siteString} OR `;
+
+        return siteString;
+      }, site);
+    } else {
+      site = userQuery.site ? `site:${userQuery.site}` : '';
+    }
     const exact = userQuery.exact ? `&as_epq=${userQuery.exact}` : '';
     const contains = userQuery.contains ? `&as_oq=${userQuery.contains}` : '';
     const without = userQuery.without ? `&as_eq=${userQuery.without}` : '';
@@ -183,11 +195,30 @@ const scholar = (function () {
 
       request(encodeURI(GOOGLE_SCHOLAR_URL + formattedQuery), scholarResultsCallback(resolve, reject))
     })
+
     return p
+  }
+
+  function searchAndExtract(query) {
+    return search(query)
+      .then(resultsObj => {
+        let extractor = null;
+        return  Promise.all(resultsObj.results.map(function(result) {
+          extractor = findExtractor(result);
+
+          if (!extractor) {
+            console.log(`Could not find extractor for ${result.url}!, skipping..`);
+            return {};
+          }
+
+          return extractor(result);
+        }))
+      })
   }
 
   return {
     search,
+    searchAndExtract,
     extractors,
   }
 })()

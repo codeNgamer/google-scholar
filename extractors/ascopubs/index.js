@@ -4,7 +4,8 @@ const striptags = require('striptags');
 const _ = require('lodash');
 const fs = require('fs');
 
-
+const Extractor = require('../extractor');
+const abstractSource = 'ASCO';
 
 function extractInfoFromSections (abstractContainer, abstract) {
   const abstractSectionClass = '.NLM_sec.NLM_sec_level_1';
@@ -22,7 +23,6 @@ function extractInfoFromSections (abstractContainer, abstract) {
   });;
 
 }
-
 
 function extractInfoFromAbstractText (abstractContainer, abstract) {
   const abstractTextSectionSelector = 'p';
@@ -72,18 +72,30 @@ const ascopubsExtractor = function (googleScholarEntry) {
       // the abstract background
       if(_.isEmpty(abstract)) saveAbstractText(abstractHtmlContainer, abstract);
 
-      abstract.title = $('meta[name="dc.Title" i]','head', html).prop('content');
-      abstract.sourceId = $('meta[scheme="doi" i]','head', html).prop('content');
-      abstract.publisherId = $('meta[scheme="publisher-id" i]','head', html).prop('content');
-      abstract.publisher = $('meta[name="dc.Publisher" i]','head', html).prop('content').trim();
-      abstract.sourceDate = $('meta[name="dc.Date" i]','head', html).prop('content');
+      try {
+        abstract.title = $('meta[name="dc.Title" i]','head', html).prop('content');
+        abstract.sourceId = $('meta[scheme="doi" i]','head', html).prop('content');
+        abstract.publisherId = $('meta[scheme="publisher-id" i]','head', html).prop('content');
+        abstract.publisher = $('meta[name="dc.Publisher" i]','head', html).prop('content').trim();
+        abstract.sourceDate = $('meta[name="dc.Date" i]','head', html).prop('content');
+      } catch(err) {
+        // just catch the error
+        // console.log(err);
+      }
+
       abstract.authors = googleScholarEntry.authors;
       abstract.citedCount = googleScholarEntry.citedCount;
       abstract.citedUrl = googleScholarEntry.citedUrl;
       abstract.link = googleScholarEntry.url;
+
+      abstract.source = abstractSource;
       return abstract;
     })
 }
 
+const acceptedUrls = [
+'ascopubs.org'
+];
 
-module.exports = ascopubsExtractor;
+
+module.exports = new Extractor(ascopubsExtractor, { acceptedUrls });
