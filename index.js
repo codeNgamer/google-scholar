@@ -192,18 +192,61 @@ const scholar = (function () {
   function search (query) {
     const p = new Promise(function (resolve, reject) {
       const formattedQuery = _.isString(query) ? query : formatQuery(query);
-
-      request(encodeURI(GOOGLE_SCHOLAR_URL + formattedQuery), scholarResultsCallback(resolve, reject))
+      const url = encodeURI(GOOGLE_SCHOLAR_URL + formattedQuery);
+      request(url, scholarResultsCallback(resolve, reject));
     })
 
+    let pageCount = 1;
+
     return p
+      .then(resultsObj => {
+        if (!_.isObject(query)) return p.resolve(results);
+        if (!resultsObj.nextUrl) return p.resolve(results);
+
+        if (query.maxPages) {
+          const delayBetweenRequests = query.requestDelay || 500;
+
+          return new Promise(function(resolve, reject) {
+            function getNextPage(res, pageCount) {
+              console.log(`pageCount is now ${pageCount}`);
+              // update results with new results;
+              resultsObj.results = _.union(resultsObj.results, res.results);
+              resultsObj.next = res.next;
+              resultsObj.previous = res.previous;
+              resultsObj.nextUrl = res.nextUrl;
+              resultsObj.prevUrl = res.prevUrl;
+
+              // if there's no nextUrl break out
+              if (!res.nextUrl) return resolve(resultsObj);
+              // if we've met maxPages count then break out
+              if (pageCount >= query.maxPages) return resolve(resultsObj);
+
+              res.next()
+                .then(newResults => {
+                  _.delay(() => getNextPage(newResults, pageCount++), delayBetweenRequests);
+                });
+            }
+
+            resultsObj.next()
+              // .then(res => resolve(res))
+              .then(res => {
+                _.delay(() => getNextPage(res, pageCount++), delayBetweenRequests);
+              })
+          });
+        }
+      })
   }
 
   function searchAndExtract(query) {
+    let resultOptions = {};
+    let pageCount = 1; // default pageCount is 1 since we already start with a search
+
     return search(query)
       .then(resultsObj => {
         let extractor = null;
-        return  Promise.all(resultsObj.results.map(function(result) {
+
+        resultOptions = _.pick(resultsObj, [ 'count', 'nextUrl', 'prevUrl', 'next', 'previous' ]);
+        return Promise.all(resultsObj.results.map(function(result) {
           extractor = findExtractor(result);
 
           if (!extractor) {
@@ -214,6 +257,7 @@ const scholar = (function () {
           return extractor(result);
         }))
       })
+      .then(results => _.merge(results, resultOptions ))
   }
 
   return {

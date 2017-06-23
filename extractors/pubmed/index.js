@@ -17,7 +17,6 @@ const pubmedExtractor = function (googleScholarEntry) {
   };
   return request(googleScholarEntry.url)
     .then(html => {
-      console.log(googleScholarEntry.url);
       // get pmid from page so we can get actual article from pubmedEfetch
       // so we dont have to scrape
       const pmid = $('meta[name="citation_pmid" i]','head', html).prop('content');
