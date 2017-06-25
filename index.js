@@ -208,7 +208,6 @@ const scholar = (function () {
 
           return new Promise(function(resolve, reject) {
             function getNextPage(res, pageCount) {
-              console.log(`pageCount is now ${pageCount}`);
               // update results with new results;
               resultsObj.results = _.union(resultsObj.results, res.results);
               resultsObj.next = res.next;
@@ -223,14 +222,13 @@ const scholar = (function () {
 
               res.next()
                 .then(newResults => {
-                  _.delay(() => getNextPage(newResults, pageCount++), delayBetweenRequests);
+                  _.delay(() => getNextPage(newResults, pageCount + 1), delayBetweenRequests);
                 });
             }
 
             resultsObj.next()
-              // .then(res => resolve(res))
               .then(res => {
-                _.delay(() => getNextPage(res, pageCount++), delayBetweenRequests);
+                _.delay(() => getNextPage(res, pageCount + 1), delayBetweenRequests);
               })
           });
         }

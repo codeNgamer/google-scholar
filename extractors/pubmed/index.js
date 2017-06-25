@@ -33,24 +33,27 @@ const pubmedExtractor = function (googleScholarEntry) {
       const abstractPubDateTag = '//PubDate';
 
 
-      let abstractCategory = '';
       abstract.title = abstractXmlDoc.get(abstractTitleTag).text();
 
       const abstractTextSections = abstractXmlDoc.find(abstractTextTag);
-      const abstractHasOneElement = (abstractTextSections.length === 1);
-      const abstractHasNoCategory = !(abstractTextSections[0].attr('NlmCategory'));
 
-      if (abstractHasOneElement && abstractHasNoCategory) {
-        // if abstractText has one child and node and that node does
-        // not have a category, then that node must have the abstract text
-        // and abstract is not divided into sections. so we save that text as background
-        abstract.background = abstractTextSections[0].text();
-      } else {
-        let sectionTitle = '';
-        _.each(abstractTextSections, section => {
-          sectionTitle = _.lowerCase(section.attr('NlmCategory').value());
-          abstract[sectionTitle] = section.text();
-        });
+      // we must have at least one item in order to enter this block
+      if (abstractTextSections[0]) {
+        const abstractHasOneElement = (abstractTextSections.length === 1);
+        const abstractHasNoCategory = !(abstractTextSections[0].attr('NlmCategory'));
+
+        if (abstractHasOneElement && abstractHasNoCategory) {
+          // if abstractText has one child and node and that node does
+          // not have a category, then that node must have the abstract text
+          // and abstract is not divided into sections. so we save that text as background
+          abstract.background = abstractTextSections[0].text();
+        } else {
+          let sectionTitle = '';
+          _.each(abstractTextSections, section => {
+            sectionTitle = _.lowerCase(section.attr('NlmCategory').value());
+            abstract[sectionTitle] = section.text();
+          });
+        }
       }
 
       const pubDateElement = abstractXmlDoc.get(abstractPubDateTag);
