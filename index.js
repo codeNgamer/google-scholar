@@ -193,6 +193,7 @@ const scholar = (function () {
     const p = new Promise(function (resolve, reject) {
       const formattedQuery = _.isString(query) ? query : formatQuery(query);
       const url = encodeURI(GOOGLE_SCHOLAR_URL + formattedQuery);
+
       request(url, scholarResultsCallback(resolve, reject));
     })
 
@@ -200,8 +201,11 @@ const scholar = (function () {
 
     return p
       .then(resultsObj => {
-        if (!_.isObject(query)) return p.resolve(results);
-        if (!resultsObj.nextUrl) return p.resolve(results);
+        // if query is not an object then no need to check for maxPages, return resultsObj
+        // if there's no nextUrl, return resultsObj as well
+        if (!_.isObject(query)) return resultsObj;
+        if (!resultsObj.nextUrl) return resultsObj;
+        if (!_.has(query, 'maxPages')) return resultsObj;
 
         if (query.maxPages) {
           const delayBetweenRequests = query.requestDelay || 500;
@@ -242,6 +246,8 @@ const scholar = (function () {
     return search(query)
       .then(resultsObj => {
         let extractor = null;
+
+        if (resultsObj === undefined) return resultsObj;
 
         resultOptions = _.pick(resultsObj, [ 'count', 'nextUrl', 'prevUrl', 'next', 'previous' ]);
         return Promise.all(resultsObj.results.map(function(result) {
