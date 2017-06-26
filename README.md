@@ -36,7 +36,8 @@ const query3 = {
   exact: 'article has this exact phrase',
   contains: 'article contains at least one of these words',
   without: 'article must not contain any of these words',
-  published: 'published in this journal etc'
+  published: 'published in this journal etc',
+  maxPages: 10, // number of pages to extract from scholar, default is 1 page @ 10 results
 };
 
 scholar.search(query1)
