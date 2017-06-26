@@ -77,7 +77,7 @@ const ascopubsExtractor = function (googleScholarEntry) {
         abstract.sourceId = $('meta[scheme="doi" i]','head', html).prop('content');
         abstract.publisherId = $('meta[scheme="publisher-id" i]','head', html).prop('content');
         abstract.publisher = $('meta[name="dc.Publisher" i]','head', html).prop('content').trim();
-        abstract.sourceDate = $('meta[name="dc.Date" i]','head', html).prop('content');
+        abstract.date = $('meta[name="dc.Date" i]','head', html).prop('content');
       } catch(err) {
         // just catch the error
         // console.log(err);

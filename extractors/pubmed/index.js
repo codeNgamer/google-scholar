@@ -62,10 +62,10 @@ const pubmedExtractor = function (googleScholarEntry) {
       try {
         const pubMonth = pubDateElement.get('Month').text();
         // save date as iso string courtesy of moment
-        abstract.publishDate = moment(`${pubMonth}/1/${pubYear}`, "MMM-DD-YYYY").toISOString();
+        abstract.date = moment(`${pubMonth}/1/${pubYear}`, "MMM-DD-YYYY").toISOString();
       } catch(err) {
         // we most likely dont have a month so default to the jan 1st of the year
-        abstract.publishDate = moment(`1/1/${pubYear}`, "MMM-DD-YYYY").toISOString();
+        abstract.date = moment(`1/1/${pubYear}`, "MMM-DD-YYYY").toISOString();
       }
 
 
