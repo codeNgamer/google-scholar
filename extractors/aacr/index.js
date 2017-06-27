@@ -28,10 +28,15 @@ const aacrExtractor = function (googleScholarEntry, o, p, c) {
         return abstract;
       }
 
+      try {
+        abstract.pmid = $('meta[name="citation_pmid" i]','head', html).prop('content');
+      } catch(err) {
+        // do nothing for now
+      }
+
       abstract.title = $('meta[name="dc.Title" i]','head', html).prop('content');
       abstract.sourceId = $('meta[name="citation_id" i]','head', html).prop('content');
       abstract.publisher = $('meta[name="dc.Publisher" i]','head', html).prop('content').trim();
-      abstract.pmid = $('meta[name="citation_pmid" i]','head', html).prop('content');
       const sourceDate = $('meta[name="dc.Date" i]','head', html).prop('content');
 
       abstract.date = moment(sourceDate, "MMM-DD-YYYY").toISOString();
