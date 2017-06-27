@@ -4,6 +4,7 @@ const $ = require('cheerio');
 const _ = require('lodash');
 const moment = require("moment");
 
+const abstractSource = 'AACR';
 const aacrExtractor = function (googleScholarEntry, o, p, c) {
   const uriOptions = {
     uri: googleScholarEntry.url,
@@ -19,6 +20,7 @@ const aacrExtractor = function (googleScholarEntry, o, p, c) {
       abstract.citedCount = googleScholarEntry.citedCount;
       abstract.citedUrl = googleScholarEntry.citedUrl;
       abstract.link = googleScholarEntry.url;
+      abstract.source = abstractSource;
 
       if (googleScholarEntry.url.includes('.pdf')) {
         abstract.title = googleScholarEntry.title;
