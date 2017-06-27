@@ -15,6 +15,19 @@ const aacrExtractor = function (googleScholarEntry, o, p, c) {
     .then(html => {
       const abstract = {};
 
+      abstract.authors = googleScholarEntry.authors;
+      abstract.citedCount = googleScholarEntry.citedCount;
+      abstract.citedUrl = googleScholarEntry.citedUrl;
+      abstract.link = googleScholarEntry.url;
+
+      if (googleScholarEntry.url.includes('.pdf')) {
+        abstract.title = googleScholarEntry.title;
+        abstract.pdf = googleScholarEntry.pdf;
+        abstract.background = googleScholarEntry.description;
+
+        return abstract;
+      }
+
       abstract.title = $('meta[name="dc.Title" i]','head', html).prop('content');
       abstract.sourceId = $('meta[name="citation_id" i]','head', html).prop('content');
       abstract.publisher = $('meta[name="dc.Publisher" i]','head', html).prop('content').trim();
@@ -23,11 +36,6 @@ const aacrExtractor = function (googleScholarEntry, o, p, c) {
 
       abstract.date = moment(sourceDate, "MMM-DD-YYYY").toISOString();
       abstract.background = $('meta[name="DC.Description" i]','head', html).prop('content');
-
-      abstract.authors = googleScholarEntry.authors;
-      abstract.citedCount = googleScholarEntry.citedCount;
-      abstract.citedUrl = googleScholarEntry.citedUrl;
-      abstract.link = googleScholarEntry.url;
 
       return abstract;
     })
