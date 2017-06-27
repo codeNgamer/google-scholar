@@ -30,6 +30,7 @@ const pubmedExtractor = function (googleScholarEntry) {
       const abstract = { };
       const abstractTitleTag = '//ArticleTitle';
       const abstractTextTag = '//AbstractText';
+      const journalIssue = '//JournalIssue';
       const abstractPubDateTag = '//PubDate';
 
 
@@ -67,6 +68,15 @@ const pubmedExtractor = function (googleScholarEntry) {
         // we most likely dont have a month so default to the jan 1st of the year
         abstract.date = moment(`1/1/${pubYear}`, "MMM-DD-YYYY").toISOString();
       }
+
+      try {
+        const journalIssueElement = abstractXmlDoc.get(journalIssue);
+        abstract.journalName = journalIssueElement.get('Title').text();
+        abstract.journalISOAbbreviation = journalIssueElement.get('ISOAbbreviation').text();
+      } catch(err) {
+        console.log('could not get journal name');
+      }
+
 
 
       abstract.authors = googleScholarEntry.authors;
