@@ -261,7 +261,9 @@ const scholar = (function () {
           return extractor(result);
         }))
       })
-      .then(results => _.merge(results, resultOptions ))
+      .then(results =>  {
+        return _.merge({ results }, resultOptions )
+      })
   }
 
   return {
