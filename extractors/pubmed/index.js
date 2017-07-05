@@ -63,15 +63,16 @@ const pubmedExtractor = function (googleScholarEntry) {
       }
 
       const pubDateElement = abstractXmlDoc.get(abstractPubDateTag);
-      const pubYear = pubDateElement.get('Year').text();
 
       try {
+        const pubYear = pubDateElement.get('Year').text();
         const pubMonth = pubDateElement.get('Month').text();
         // save date as iso string courtesy of moment
         abstract.date = moment(`${pubMonth}/1/${pubYear}`, "MMM-DD-YYYY").toISOString();
       } catch(err) {
         // we most likely dont have a month so default to the jan 1st of the year
-        abstract.date = moment(`1/1/${pubYear}`, "MMM-DD-YYYY").toISOString();
+        // abstract.date = moment(`1/1/${pubYear}`, "MMM-DD-YYYY").toISOString();
+        console.log('could not accurately get artical date');
       }
 
       try {
