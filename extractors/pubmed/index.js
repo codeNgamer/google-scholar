@@ -19,12 +19,17 @@ const pubmedExtractor = function (googleScholarEntry) {
     .then(html => {
       // get pmid from page so we can get actual article from pubmedEfetch
       // so we dont have to scrape
-      const pmid = $('meta[name="citation_pmid" i]','head', html).prop('content');
-      return pmid;
+      try {
+        const pmid = $('meta[name="citation_pmid" i]','head', html).prop('content');
+        return pmid;
+      } catch(err) {
+        console.log(`could not get pmid for: ${googleScholarEntry.url}`);
+        return null
+      }
     })
   // get article from efetch
     .then(pmid => request(`${pubmedEfetch}&id=${pmid}${returnMode}`))
-  // parse abstract xml to json
+  // parse abstract
     .then(abstractXml => libxmljs.parseXml(abstractXml,{ noblanks: true }))
     .then(abstractXmlDoc => {
       const abstract = { };
