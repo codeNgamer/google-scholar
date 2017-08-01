@@ -15,12 +15,13 @@ const pubmedExtractor = function (googleScholarEntry) {
     resolveWithFullResponse :true,
     simple: true
   };
+  let pmid = null;
   return request(googleScholarEntry.url)
     .then(html => {
       // get pmid from page so we can get actual article from pubmedEfetch
       // so we dont have to scrape
       try {
-        const pmid = $('meta[name="citation_pmid" i]','head', html).prop('content');
+        pmid = $('meta[name="citation_pmid" i]','head', html).prop('content');
         return pmid;
       } catch(err) {
         console.log(`could not get pmid for: ${googleScholarEntry.url}`);
@@ -37,11 +38,18 @@ const pubmedExtractor = function (googleScholarEntry) {
       const abstractTextTag = '//AbstractText';
       const journalIssue = '//JournalIssue';
       const abstractPubDateTag = '//PubDate';
+      const chemicalList = '//Chemical';
+      const meshHeadingList = '//MeshHeading';
+      const publicationType = '//PublicationType';
 
 
       abstract.title = abstractXmlDoc.get(abstractTitleTag).text();
+      abstract.pmid = pmid;
 
       const abstractTextSections = abstractXmlDoc.find(abstractTextTag);
+      const abstractChemicalList = abstractXmlDoc.find(chemicalList);
+      const abstractMeshHeadingList = abstractXmlDoc.find(meshHeadingList);
+      const abstractPubType = abstractXmlDoc.find(publicationType);
 
       // we must have at least one item in order to enter this block
       if (abstractTextSections[0]) {
@@ -83,7 +91,17 @@ const pubmedExtractor = function (googleScholarEntry) {
         console.log('could not get journal name');
       }
 
+      try {
+        abstract.chemicals = _.map(abstractChemicalList, chemical => chemical.get('NameOfSubstance').text());
+      } catch(err) { }
 
+      try {
+        abstract.keywords = _.map(abstractMeshHeadingList, keyword => keyword.get('DescriptorName').text());
+      } catch(err) {  }
+
+      try {
+        abstract.publicationType = _.map(abstractPubType, pubType => pubType.text());
+      } catch(err) {  }
 
       abstract.authors = googleScholarEntry.authors;
       abstract.citedCount = googleScholarEntry.citedCount;
