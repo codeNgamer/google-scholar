@@ -41,6 +41,7 @@ const pubmedExtractor = function (googleScholarEntry) {
       const chemicalList = '//Chemical';
       const meshHeadingList = '//MeshHeading';
       const publicationType = '//PublicationType';
+      const authors = '//Author';
 
 
       abstract.title = abstractXmlDoc.get(abstractTitleTag).text();
@@ -50,6 +51,7 @@ const pubmedExtractor = function (googleScholarEntry) {
       const abstractChemicalList = abstractXmlDoc.find(chemicalList);
       const abstractMeshHeadingList = abstractXmlDoc.find(meshHeadingList);
       const abstractPubType = abstractXmlDoc.find(publicationType);
+      const abstractAuthors = abstractXmlDoc.find(authors);
 
       // we must have at least one item in order to enter this block
       if (abstractTextSections[0]) {
@@ -103,7 +105,19 @@ const pubmedExtractor = function (googleScholarEntry) {
         abstract.publicationType = _.map(abstractPubType, pubType => pubType.text());
       } catch(err) {  }
 
-      abstract.authors = googleScholarEntry.authors;
+      try {
+        abstract.authors = _.map(abstractAuthors, author => {
+          return {
+            lastName: author.get('LastName').text(),
+            firstName: author.get('ForeName').text(),
+            initials: author.get('Initials').text(),
+            affiliation: author.find('Affiliation')[0].text(),
+            collectiveName: author.get('CollectiveName').text(),
+          }
+        })
+      } catch(err) {
+      }
+
       abstract.citedCount = googleScholarEntry.citedCount;
       abstract.citedUrl = googleScholarEntry.citedUrl;
       abstract.link = googleScholarEntry.url;
