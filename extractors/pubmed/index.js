@@ -40,6 +40,7 @@ const pubmedExtractor = function (googleScholarEntry) {
       const abstractPubDateTag = '//PubDate';
       const chemicalList = '//Chemical';
       const meshHeadingList = '//MeshHeading';
+      const keywordList = '//KeywordList';
       const publicationType = '//PublicationType';
       const authors = '//Author';
 
@@ -50,6 +51,7 @@ const pubmedExtractor = function (googleScholarEntry) {
       const abstractTextSections = abstractXmlDoc.find(abstractTextTag);
       const abstractChemicalList = abstractXmlDoc.find(chemicalList);
       const abstractMeshHeadingList = abstractXmlDoc.find(meshHeadingList);
+      const abstractKeywordList = abstractXmlDoc.find(keywordList);
       const abstractPubType = abstractXmlDoc.find(publicationType);
       const abstractAuthors = abstractXmlDoc.find(authors);
 
@@ -98,7 +100,11 @@ const pubmedExtractor = function (googleScholarEntry) {
       } catch(err) { }
 
       try {
-        abstract.keywords = _.map(abstractMeshHeadingList, keyword => keyword.get('DescriptorName').text());
+        if (abstractKeywordList.length) {
+          abstract.keywords = _.map(abstractKeywordList, keyword => keyword.text());
+        } else {
+          abstract.keywords = _.map(abstractMeshHeadingList, keyword => keyword.get('DescriptorName').text());
+        }
       } catch(err) {  }
 
       try {
