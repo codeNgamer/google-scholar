@@ -40,7 +40,7 @@ const pubmedExtractor = function (googleScholarEntry) {
       const abstractPubDateTag = '//PubDate';
       const chemicalList = '//Chemical';
       const meshHeadingList = '//MeshHeading';
-      const keywordList = '//KeywordList';
+      const keywordList = '//Keyword';
       const publicationType = '//PublicationType';
       const authors = '//Author';
 
