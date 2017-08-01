@@ -107,15 +107,23 @@ const pubmedExtractor = function (googleScholarEntry) {
 
       try {
         abstract.authors = _.map(abstractAuthors, author => {
+          if (author.find('Affiliation').length) {
+            return {
+              lastName: author.get('LastName').text(),
+              firstName: author.get('ForeName').text(),
+              initials: author.get('Initials').text(),
+              affiliation: author.find('Affiliation')[0].text(),
+            }
+          }
           return {
             lastName: author.get('LastName').text(),
             firstName: author.get('ForeName').text(),
             initials: author.get('Initials').text(),
             affiliation: author.find('Affiliation')[0].text(),
-            collectiveName: author.get('CollectiveName').text(),
           }
         })
       } catch(err) {
+        console.log(err);
       }
 
       abstract.citedCount = googleScholarEntry.citedCount;
