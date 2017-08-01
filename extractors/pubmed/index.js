@@ -119,7 +119,6 @@ const pubmedExtractor = function (googleScholarEntry) {
             lastName: author.get('LastName').text(),
             firstName: author.get('ForeName').text(),
             initials: author.get('Initials').text(),
-            affiliation: author.find('Affiliation')[0].text(),
           }
         })
       } catch(err) {
