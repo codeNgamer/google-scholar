@@ -47,6 +47,7 @@ const pubmedExtractor = function (googleScholarEntry) {
 
       abstract.title = abstractXmlDoc.get(abstractTitleTag).text();
       abstract.pmid = pmid;
+      abstract.link = `http://www.ncbi.nlm.nih.gov/pubmed/${abstractXmlDoc.get('//PMID').text()}`;
 
       const abstractTextSections = abstractXmlDoc.find(abstractTextTag);
       const abstractChemicalList = abstractXmlDoc.find(chemicalList);
@@ -133,7 +134,6 @@ const pubmedExtractor = function (googleScholarEntry) {
 
       abstract.citedCount = googleScholarEntry.citedCount;
       abstract.citedUrl = googleScholarEntry.citedUrl;
-      abstract.link = googleScholarEntry.url;
       abstract.source = abstractSource;
 
       return abstract;
