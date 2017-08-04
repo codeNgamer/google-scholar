@@ -85,7 +85,7 @@ const pubmedExtractor = function (googleScholarEntry) {
       } catch(err) {
         // we most likely dont have a month so default to the jan 1st of the year
         // abstract.date = moment(`1/1/${pubYear}`, "MMM-DD-YYYY").toISOString();
-        console.log('could not accurately get artical date');
+        // console.log('could not accurately get artical date');
       }
 
       try {
@@ -93,7 +93,7 @@ const pubmedExtractor = function (googleScholarEntry) {
         abstract.journalName = journalIssueElement.get('Title').text();
         abstract.journalISOAbbreviation = journalIssueElement.get('ISOAbbreviation').text();
       } catch(err) {
-        console.log('could not get journal name');
+        // console.log('could not get journal name');
       }
 
       try {
